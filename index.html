@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ffffff">
-<title>📻 Wave</title>
+<title>Wave</title>
 <style>
 :root {
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -15,7 +15,7 @@
 	color: #000;
 	background: #fff;
 	--safe-bottom: env(safe-area-inset-bottom, 0px);
-	--player-height: 190px;
+	--player-height: 160px;
 }
 
 * {
@@ -52,6 +52,12 @@ button {
 	cursor: pointer;
 	line-height: 1;
 	min-height: 44px;
+}
+
+button:focus-visible,
+a:focus-visible {
+	outline: 2px solid #000;
+	outline-offset: 2px;
 }
 
 button:disabled {
@@ -135,7 +141,7 @@ header p {
 	min-height: 0;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
-	padding: 0.65rem 0.75rem calc(var(--player-height) + 0.75rem);
+	padding: 0.65rem 0.75rem 0.75rem;
 }
 
 .section-title {
@@ -144,6 +150,14 @@ header p {
 	text-transform: uppercase;
 	letter-spacing: 0.02em;
 	margin: 0 0 0.5rem;
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+}
+
+#stationCount {
+	font-weight: 400;
+	opacity: 0.65;
 }
 
 #stations {
@@ -157,15 +171,34 @@ header p {
 }
 
 .station-link {
-	display: block;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 0.75rem;
 	border: 1px solid #000;
-	padding: 0.7rem;
-	min-height: 56px;
+	padding: 0.65rem 0.7rem;
+	min-height: 52px;
 }
 
 .station-link.selected {
 	background: #000;
 	color: #fff;
+}
+
+.station-details {
+	min-width: 0;
+}
+
+.equalizer {
+	display: none;
+	width: 32px;
+	height: 22px;
+	image-rendering: pixelated;
+}
+
+.station-link.playing .equalizer {
+	display: block;
+	filter: invert(1);
 }
 
 .station-name {
@@ -210,10 +243,8 @@ header p {
 }
 
 .player-title-row {
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: 0.75rem;
+	display: grid;
+	gap: 0.2rem;
 }
 
 #playerTitle {
@@ -234,9 +265,9 @@ header p {
 #playerDescription {
 	font-size: 0.76rem;
 	line-height: 1.35;
-	margin-top: 0.35rem;
+	margin-top: 0.25rem;
 	display: -webkit-box;
-	-webkit-line-clamp: 3;
+	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
 }
@@ -271,7 +302,7 @@ header p {
 
 @media screen and (min-width: 650px) {
 	:root {
-		--player-height: 175px;
+		--player-height: 150px;
 	}
 
 	.app {
@@ -293,6 +324,20 @@ header p {
 		padding-left: 1rem;
 		padding-right: 1rem;
 	}
+
+	#player {
+		grid-template-columns: 1fr 330px;
+		align-items: end;
+	}
+
+	.player-actions {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.status-line {
+		grid-column: 1 / -1;
+	}
 }
 </style>
 </head>
@@ -300,7 +345,7 @@ header p {
 <div class="app">
 	<header>
 		<h1>📻 Wave</h1>
-		<p>Easy way to listen to good radios</p>
+		<p>Good radio, fast.</p>
 	</header>
 
 	<nav class="country-tabs" aria-label="Countries">
@@ -308,7 +353,7 @@ header p {
 	</nav>
 
 	<main class="station-wrap">
-		<h2 class="section-title">Stations</h2>
+		<h2 class="section-title"><span id="sectionLabel">Stations</span><span id="stationCount"></span></h2>
 		<ul id="stations"></ul>
 		<p id="stationsMessage">Select a country</p>
 	</main>
@@ -349,8 +394,11 @@ const playerStatus = document.getElementById('playerStatus');
 const prevButton = document.getElementById('prevButton');
 const playButton = document.getElementById('playButton');
 const nextButton = document.getElementById('nextButton');
+const sectionLabel = document.getElementById('sectionLabel');
+const stationCount = document.getElementById('stationCount');
 
 const countries = [...new Set(stations.map(station => station.country))].sort();
+const storageKey = 'wave:lastStation';
 
 let currentCountry = null;
 let currentStations = [];
@@ -404,16 +452,23 @@ function highlightCountry(country) {
 function renderStations(list) {
 	stationsList.innerHTML = '';
 	stationsMessage.style.display = list.length ? 'none' : 'block';
+	sectionLabel.textContent = currentCountry || 'Stations';
+	stationCount.textContent = list.length ? list.length + ' station' + (list.length === 1 ? '' : 's') : '';
 
 	list.forEach((station, index) => {
 		const li = document.createElement('li');
 		const link = document.createElement('a');
+		const details = document.createElement('span');
 		const name = document.createElement('span');
 		const meta = document.createElement('span');
+		const equalizer = document.createElement('img');
 
 		link.href = '#';
 		link.className = 'station-link';
 		link.dataset.index = String(index);
+		link.setAttribute('aria-current', 'false');
+
+		details.className = 'station-details';
 
 		name.className = 'station-name';
 		name.textContent = station.name;
@@ -421,11 +476,18 @@ function renderStations(list) {
 		meta.className = 'metadata';
 		meta.textContent = station.country + ' · ' + station.quality;
 
-		link.appendChild(name);
-		link.appendChild(meta);
+		equalizer.className = 'equalizer';
+		equalizer.src = 'equalizer.gif';
+		equalizer.alt = '';
+		equalizer.setAttribute('aria-hidden', 'true');
+
+		details.appendChild(name);
+		details.appendChild(meta);
+		link.appendChild(details);
+		link.appendChild(equalizer);
 		link.addEventListener('click', event => {
 			event.preventDefault();
-			selectStation(index, false);
+			selectStation(index, true);
 		});
 
 		li.appendChild(link);
@@ -444,6 +506,7 @@ function selectStation(index, autoplay) {
 	setPlayerStation(station);
 	setControlsEnabled(true);
 	setStatus('Ready.');
+	rememberStation(station);
 
 	if (autoplay || wasPlaying) {
 		playStation(station);
@@ -454,6 +517,8 @@ function highlightStation(index) {
 	document.querySelectorAll('#stations .station-link').forEach(link => {
 		const isSelected = Number(link.dataset.index) === index;
 		link.classList.toggle('selected', isSelected);
+		link.classList.toggle('playing', isSelected && currentUrl && !audio.paused);
+		link.setAttribute('aria-current', isSelected ? 'true' : 'false');
 		if (isSelected) link.scrollIntoView({ block: 'nearest' });
 	});
 }
@@ -463,6 +528,7 @@ function setPlayerStation(station) {
 	playerDescription.textContent = station.description;
 	playerQuality.textContent = station.quality;
 	playButton.textContent = currentUrl === station.url && !audio.paused ? 'Stop' : 'Play';
+	highlightStation(currentStationIndex);
 	document.title = station.name + ' · Wave';
 }
 
@@ -507,6 +573,7 @@ function stopAudio() {
 	audio.load();
 	currentUrl = null;
 	playButton.textContent = 'Play';
+	highlightStation(currentStationIndex);
 }
 
 function togglePlay() {
@@ -536,6 +603,7 @@ function playStation(station) {
 		isLoading = false;
 		playButton.textContent = 'Stop';
 		setStatus('Playing.');
+		highlightStation(currentStationIndex);
 		document.title = station.name + ' · Wave';
 	};
 
@@ -543,7 +611,6 @@ function playStation(station) {
 		isLoading = false;
 		stopAudio();
 		setStatus('Playback failed. Try another station.');
-		alert('Playback failed: ' + (error && error.message ? error.message : error));
 	};
 
 	if (station.url.includes('.m3u8') && window.Hls && Hls.isSupported()) {
@@ -643,13 +710,63 @@ function updateMediaSession(station) {
 	}
 }
 
+function rememberStation(station) {
+	try {
+		localStorage.setItem(storageKey, JSON.stringify({
+			country: station.country,
+			name: station.name
+		}));
+	} catch (error) {
+		// Private browsing or locked-down storage should not affect playback.
+	}
+}
+
+function restoreLastStation() {
+	try {
+		const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+		if (!saved || !saved.country) return false;
+		if (!countries.includes(saved.country)) return false;
+
+		selectCountry(saved.country);
+
+		const index = currentStations.findIndex(station => station.name === saved.name);
+		if (index >= 0) {
+			selectStation(index, false);
+		}
+
+		return index >= 0;
+	} catch (error) {
+		return false;
+	}
+}
+
 playButton.addEventListener('click', togglePlay);
 prevButton.addEventListener('click', playPreviousStation);
 nextButton.addEventListener('click', playNextStation);
 
+document.addEventListener('keydown', event => {
+	if (event.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName)) return;
+
+	if (event.key === 'ArrowRight') {
+		event.preventDefault();
+		playNextStation();
+	}
+
+	if (event.key === 'ArrowLeft') {
+		event.preventDefault();
+		playPreviousStation();
+	}
+
+	if (event.key === ' ' && currentStationIndex >= 0) {
+		event.preventDefault();
+		togglePlay();
+	}
+});
+
 audio.addEventListener('ended', () => {
 	playButton.textContent = 'Play';
 	currentUrl = null;
+	highlightStation(currentStationIndex);
 	setStatus('Stream ended.');
 });
 
@@ -662,7 +779,7 @@ audio.addEventListener('error', () => {
 
 renderCountries();
 
-if (countries.length) {
+if (countries.length && !restoreLastStation()) {
 	selectCountry(countries[0]);
 }
 
