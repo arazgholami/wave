@@ -10,12 +10,14 @@
 <title>Wave</title>
 <style>
 :root {
-	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-family: sans-serif;
 	font-size: 16px;
-	color: #000;
-	background: #fff;
-	--safe-bottom: env(safe-area-inset-bottom, 0px);
+	color: #102033;
+	background: #f5f9ff;
 	--player-height: 160px;
+	--line: #cad8ea;
+	--blue: #1d5f9e;
+	--soft: #eaf3ff;
 }
 
 * {
@@ -27,9 +29,8 @@ body {
 	width: 100%;
 	height: 100%;
 	margin: 0;
-	padding: 0;
-	background: #fff;
-	color: #000;
+	background: #f5f9ff;
+	color: #102033;
 }
 
 body {
@@ -38,25 +39,24 @@ body {
 }
 
 a {
-	color: #000;
+	color: #102033;
 	text-decoration: none;
 }
 
 button {
 	font: inherit;
-	background: #000;
+	background: var(--blue);
 	color: #fff;
-	border: 1px solid #000;
-	border-radius: 0;
-	padding: 0.75rem 0.85rem;
-	cursor: pointer;
+	border: 1px solid var(--blue);
+	border-radius: 8px;
+	padding: 0.7rem 0.85rem;
 	line-height: 1;
 	min-height: 44px;
 }
 
 button:focus-visible,
 a:focus-visible {
-	outline: 2px solid #000;
+	outline: 2px solid var(--blue);
 	outline-offset: 2px;
 }
 
@@ -67,7 +67,8 @@ button:disabled {
 
 button.secondary {
 	background: #fff;
-	color: #000;
+	color: #24415f;
+	border-color: var(--line);
 }
 
 .app {
@@ -81,8 +82,8 @@ button.secondary {
 }
 
 header {
-	padding: 0.75rem 0.85rem 0.45rem;
-	border-bottom: 1px solid #000;
+	padding: 0.8rem 0.85rem 0.55rem;
+	border-bottom: 1px solid var(--line);
 }
 
 h1,
@@ -91,23 +92,23 @@ p {
 }
 
 h1 {
-	font-size: 1.25rem;
-	line-height: 1.15;
+	font-size: 1.2rem;
+	line-height: 1.2;
 }
 
 header p {
-	font-size: 0.8rem;
-	line-height: 1.35;
 	margin-top: 0.25rem;
+	font-size: 0.9rem;
+	line-height: 1.35;
+	color: #5e7187;
 }
 
 .country-tabs {
-	border-bottom: 1px solid #000;
+	border-bottom: 1px solid var(--line);
 	overflow-x: auto;
 	overflow-y: hidden;
 	-webkit-overflow-scrolling: touch;
 	scrollbar-width: none;
-	background: #fff;
 }
 
 .country-tabs::-webkit-scrollbar {
@@ -125,15 +126,18 @@ header p {
 
 #countries a {
 	display: block;
-	padding: 0.55rem 0.7rem;
-	border: 1px solid #000;
+	padding: 0.5rem 0.7rem;
+	border: 1px solid var(--line);
+	border-radius: 999px;
 	white-space: nowrap;
-	font-size: 0.86rem;
+	font-size: 0.9rem;
 	line-height: 1;
+	background: #fff;
 }
 
 #countries a.selected {
-	background: #000;
+	background: var(--blue);
+	border-color: var(--blue);
 	color: #fff;
 }
 
@@ -145,10 +149,8 @@ header p {
 }
 
 .section-title {
-	font-size: 0.78rem;
-	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.02em;
+	font-size: 0.85rem;
+	font-weight: 600;
 	margin: 0 0 0.5rem;
 	display: flex;
 	justify-content: space-between;
@@ -175,14 +177,16 @@ header p {
 	grid-template-columns: minmax(0, 1fr) auto;
 	align-items: center;
 	gap: 0.75rem;
-	border: 1px solid #000;
-	padding: 0.65rem 0.7rem;
-	min-height: 52px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	padding: 0.7rem;
+	min-height: 54px;
 }
 
 .station-link.selected {
-	background: #000;
-	color: #fff;
+	background: var(--soft);
+	border-color: #8fbbe8;
+	color: #102033;
 }
 
 .station-details {
@@ -198,20 +202,19 @@ header p {
 
 .station-link.playing .equalizer {
 	display: block;
-	filter: invert(1);
 }
 
 .station-name {
 	display: block;
-	font-size: 1rem;
-	line-height: 1.2;
+	font-size: 0.98rem;
+	line-height: 1.25;
 	font-weight: 700;
 }
 
 .metadata {
 	display: block;
-	font-size: 0.74rem;
-	line-height: 1.25;
+	font-size: 0.8rem;
+	line-height: 1.3;
 	margin-top: 0.25rem;
 	color: inherit;
 	opacity: 0.7;
@@ -221,6 +224,7 @@ header p {
 	font-size: 0.9rem;
 	line-height: 1.4;
 	padding: 1rem 0;
+	color: #5e7187;
 }
 
 .player-shell {
@@ -228,8 +232,8 @@ header p {
 	bottom: 0;
 	z-index: 10;
 	background: #fff;
-	border-top: 1px solid #000;
-	padding: 0.65rem 0.75rem calc(0.65rem + var(--safe-bottom));
+	border-top: 1px solid var(--line);
+	padding: 0.7rem 0.75rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
 	min-height: var(--player-height);
 }
 
@@ -242,11 +246,6 @@ header p {
 	min-width: 0;
 }
 
-.player-title-row {
-	display: grid;
-	gap: 0.2rem;
-}
-
 #playerTitle {
 	font-size: 1rem;
 	font-weight: 700;
@@ -257,13 +256,13 @@ header p {
 }
 
 #playerQuality {
-	font-size: 0.72rem;
+	font-size: 0.8rem;
 	white-space: nowrap;
 	opacity: 0.7;
 }
 
 #playerDescription {
-	font-size: 0.76rem;
+	font-size: 0.85rem;
 	line-height: 1.35;
 	margin-top: 0.25rem;
 	display: -webkit-box;
@@ -278,36 +277,14 @@ header p {
 	gap: 0.45rem;
 }
 
-.status-line {
-	font-size: 0.72rem;
-	line-height: 1.25;
-	min-height: 1em;
-	opacity: 0.75;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-.sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border: 0;
-}
-
 @media screen and (min-width: 650px) {
 	:root {
 		--player-height: 150px;
 	}
 
 	.app {
-		border-left: 1px solid #000;
-		border-right: 1px solid #000;
+		border-left: 1px solid var(--line);
+		border-right: 1px solid var(--line);
 	}
 
 	header {
@@ -334,18 +311,14 @@ header p {
 		grid-column: 2;
 		grid-row: 1;
 	}
-
-	.status-line {
-		grid-column: 1 / -1;
-	}
 }
 </style>
 </head>
 <body>
 <div class="app">
 	<header>
-		<h1>📻 Wave</h1>
-		<p>Good radio, fast.</p>
+		<h1>Wave</h1>
+		<p>Good radio, Simple.</p>
 	</header>
 
 	<nav class="country-tabs" aria-label="Countries">
@@ -373,8 +346,6 @@ header p {
 				<button id="playButton" type="button" disabled>Play</button>
 				<button id="nextButton" type="button" class="secondary" disabled>Next</button>
 			</div>
-
-			<div id="playerStatus" class="status-line" aria-live="polite"></div>
 		</div>
 	</section>
 </div>
@@ -390,7 +361,6 @@ const stationsMessage = document.getElementById('stationsMessage');
 const playerTitle = document.getElementById('playerTitle');
 const playerDescription = document.getElementById('playerDescription');
 const playerQuality = document.getElementById('playerQuality');
-const playerStatus = document.getElementById('playerStatus');
 const prevButton = document.getElementById('prevButton');
 const playButton = document.getElementById('playButton');
 const nextButton = document.getElementById('nextButton');
@@ -403,6 +373,7 @@ const storageKey = 'wave:lastStation';
 let currentCountry = null;
 let currentStations = [];
 let currentStationIndex = -1;
+let currentStation = null;
 let currentUrl = null;
 let currentHls = null;
 let isLoading = false;
@@ -428,13 +399,15 @@ function renderCountries() {
 }
 
 function selectCountry(country) {
+	const keepPlayer = currentStation && (currentUrl || isLoading);
 	currentCountry = country;
 	currentStations = stations.filter(station => station.country === country);
-	currentStationIndex = -1;
+	currentStationIndex = keepPlayer ? currentStations.findIndex(station => station.url === currentStation.url) : -1;
 
 	highlightCountry(country);
 	renderStations(currentStations);
-	resetPlayerSelection('Choose a station.');
+	highlightStation(currentStationIndex);
+	if (!keepPlayer) resetPlayerSelection('Choose a station.');
 }
 
 function highlightCountry(country) {
@@ -501,11 +474,11 @@ function selectStation(index, autoplay) {
 	const wasPlaying = !!currentUrl && !audio.paused;
 	const station = currentStations[index];
 	currentStationIndex = index;
+	currentStation = station;
 
 	highlightStation(index);
 	setPlayerStation(station);
 	setControlsEnabled(true);
-	setStatus('Ready.');
 	rememberStation(station);
 
 	if (autoplay || wasPlaying) {
@@ -534,12 +507,12 @@ function setPlayerStation(station) {
 
 function resetPlayerSelection(message) {
 	stopAudio();
+	currentStation = null;
 	playerTitle.textContent = 'Nothing selected';
 	playerDescription.textContent = message || 'Choose a country, then choose a station.';
 	playerQuality.textContent = '';
 	playButton.textContent = 'Play';
 	setControlsEnabled(false);
-	setStatus('');
 	document.title = 'Wave';
 }
 
@@ -547,10 +520,6 @@ function setControlsEnabled(enabled) {
 	prevButton.disabled = !enabled;
 	playButton.disabled = !enabled;
 	nextButton.disabled = !enabled;
-}
-
-function setStatus(message) {
-	playerStatus.textContent = message || '';
 }
 
 function destroyHls() {
@@ -577,12 +546,11 @@ function stopAudio() {
 }
 
 function togglePlay() {
-	const station = currentStations[currentStationIndex];
+	const station = currentStations[currentStationIndex] || currentStation;
 	if (!station || isLoading) return;
 
 	if (currentUrl === station.url && !audio.paused) {
 		stopAudio();
-		setStatus('Stopped.');
 		return;
 	}
 
@@ -593,16 +561,15 @@ function playStation(station) {
 	if (!station) return;
 
 	stopAudio();
+	currentStation = station;
 	isLoading = true;
 	currentUrl = station.url;
 	playButton.textContent = 'Loading';
-	setStatus('Loading stream...');
 	updateMediaSession(station);
 
 	const onPlaySuccess = () => {
 		isLoading = false;
 		playButton.textContent = 'Stop';
-		setStatus('Playing.');
 		highlightStation(currentStationIndex);
 		document.title = station.name + ' · Wave';
 	};
@@ -610,7 +577,6 @@ function playStation(station) {
 	const onPlayError = error => {
 		isLoading = false;
 		stopAudio();
-		setStatus('Playback failed. Try another station.');
 	};
 
 	if (station.url.includes('.m3u8') && window.Hls && Hls.isSupported()) {
@@ -651,7 +617,7 @@ function moveStation(direction) {
 	if (!countries.length) return;
 
 	let countryIndex = currentCountry ? countries.indexOf(currentCountry) : 0;
-	let nextIndex = currentStationIndex + direction;
+	let nextIndex = currentStationIndex < 0 ? (direction > 0 ? 0 : currentStations.length - 1) : currentStationIndex + direction;
 	let nextCountry = currentCountry;
 	let nextStations = currentStations;
 
@@ -700,12 +666,11 @@ function updateMediaSession(station) {
 		navigator.mediaSession.setActionHandler('nexttrack', playNextStation);
 		navigator.mediaSession.setActionHandler('previoustrack', playPreviousStation);
 		navigator.mediaSession.setActionHandler('play', () => {
-			const station = currentStations[currentStationIndex];
+			const station = currentStations[currentStationIndex] || currentStation;
 			if (station) playStation(station);
 		});
 		navigator.mediaSession.setActionHandler('pause', () => {
 			stopAudio();
-			setStatus('Stopped.');
 		});
 	}
 }
@@ -717,7 +682,6 @@ function rememberStation(station) {
 			name: station.name
 		}));
 	} catch (error) {
-		// Private browsing or locked-down storage should not affect playback.
 	}
 }
 
@@ -757,7 +721,7 @@ document.addEventListener('keydown', event => {
 		playPreviousStation();
 	}
 
-	if (event.key === ' ' && currentStationIndex >= 0) {
+	if (event.key === ' ' && currentStation) {
 		event.preventDefault();
 		togglePlay();
 	}
@@ -767,13 +731,11 @@ audio.addEventListener('ended', () => {
 	playButton.textContent = 'Play';
 	currentUrl = null;
 	highlightStation(currentStationIndex);
-	setStatus('Stream ended.');
 });
 
 audio.addEventListener('error', () => {
 	if (currentUrl) {
 		stopAudio();
-		setStatus('Stream error. Try another station.');
 	}
 });
 
@@ -786,7 +748,6 @@ if (countries.length && !restoreLastStation()) {
 if ('serviceWorker' in navigator) {
 	window.addEventListener('load', () => {
 		navigator.serviceWorker.register('sw.js').catch(() => {
-			// Ignore registration failure for browsers where registration isn't available.
 		});
 	});
 }
