@@ -447,7 +447,7 @@ function renderStations(list) {
 		name.textContent = station.name;
 
 		meta.className = 'metadata';
-		meta.textContent = station.country + ' · ' + station.quality;
+		meta.textContent = station.country + ' · ' + station.category + ' · ' + station.quality;
 
 		equalizer.className = 'equalizer';
 		equalizer.src = 'equalizer.gif';
@@ -499,7 +499,7 @@ function highlightStation(index) {
 function setPlayerStation(station) {
 	playerTitle.textContent = station.name;
 	playerDescription.textContent = station.description;
-	playerQuality.textContent = station.quality;
+	playerQuality.textContent = station.category + ' · ' + station.quality;
 	playButton.textContent = currentUrl === station.url && !audio.paused ? 'Stop' : 'Play';
 	highlightStation(currentStationIndex);
 	document.title = station.name + ' · Wave';
@@ -652,8 +652,8 @@ function updateMediaSession(station) {
 	if ('mediaSession' in navigator) {
 		navigator.mediaSession.metadata = new MediaMetadata({
 			title: station.name,
-			artist: station.country,
-			album: 'Wave',
+			artist: station.category,
+			album: station.country,
 			artwork: [
 				{
 					src: 'icon.svg',
